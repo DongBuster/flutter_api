@@ -2,6 +2,7 @@
 class ModelNew {
   late String title;
   late String description;
+  late String content;
   late String author;
   late String urlToImage;
   late String publishedAt;
@@ -9,13 +10,15 @@ class ModelNew {
     required this.title,
     required this.description,
     required this.author,
+    required this.content,
     required this.urlToImage,
     required this.publishedAt,
   });
   ModelNew.fromJson(Map<String, dynamic> json)
-      : title = json['title'] as String,
+      : title = json['title'] ?? '',
         description = json['description'] ?? '',
+        content = json['content'] ?? '',
         author = json['author'] ?? '',
         urlToImage = json['urlToImage'] ?? '',
-        publishedAt = json['publishedAt'] as String;
+        publishedAt = json['publishedAt'] ?? '';
 }

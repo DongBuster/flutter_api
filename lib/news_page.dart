@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_api/detail_news.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_api/model_news.dart';
@@ -27,7 +28,7 @@ class _NewsPageState extends State<NewsPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(5, 12, 12, 20),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -79,7 +80,7 @@ class _NewsPageState extends State<NewsPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 12),
             //--- list ----
             SizedBox(
               height: 35,
@@ -189,11 +190,11 @@ class _NewsPageState extends State<NewsPage> {
                     List<ModelNew> list =
                         jsonContent!.map((e) => ModelNew.fromJson(e)).toList();
                     return SizedBox(
-                        height: MediaQuery.of(context).size.height - 200,
+                        height: MediaQuery.of(context).size.height - 250,
                         child: ListView.builder(
                           itemCount: list.length,
                           itemBuilder: (context, index) {
-                            return Text(list[index].title);
+                            return News(news: list[index]);
                           },
                         ));
                   } else if (snapshot.hasError) {
@@ -218,65 +219,98 @@ class News extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Image.network(news.urlToImage),
-        Column(
-          children: [
-            const SizedBox(
-              height: 50,
-              child: Text(
-                'gdfsgdsksdjksdjflflflflflflldksfj sldkfkkkkkfkfklskd  sdlkfk',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Colors.black,
+    if (news.author == '' ||
+        news.description == '' ||
+        news.publishedAt == '' ||
+        news.title == '' ||
+        news.urlToImage == '') {
+      return const SizedBox();
+    } else {
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => DetailNews(news: news)));
+        },
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  news.urlToImage,
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.cover,
                 ),
               ),
-            ),
-            Text(
-              news.author,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.black38,
-              ),
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '3 hours ago',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black38,
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 230,
+                    child: Text(
+                      news.title,
+                      softWrap: true,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
-                ),
-                Text(
-                  'polisd',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black38,
+                  Text(
+                    news.author,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
                   ),
-                ),
-                Text(
-                  '6 mins',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.black38,
-                  ),
-                ),
-              ],
-            )
-          ],
-        )
-      ],
-    );
+                  const SizedBox(
+                    width: 230,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '3 hours ago',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        Text(
+                          'All',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        Text(
+                          '6 mins',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              )
+            ],
+          ),
+        ),
+      );
+    }
   }
 }
 
 Future<List<dynamic>> fetchModelNew() async {
   final response = await http.get(Uri.parse(
-      'https://newsapi.org/v2/everything?q=tesla&from=2024-02-19&sortBy=publishedAt&apiKey=cab296018ecc4494993580b31d962caa'));
+      'https://newsapi.org/v2/top-headlines?country=us&apiKey=1e9595a434cc424da690833a7aa36e7d'));
 
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
