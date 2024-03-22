@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_api/detail_news.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_api/model_news.dart';
+import 'package:localstore/localstore.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -16,6 +15,7 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   final _focusnode = FocusNode();
   late Future<ModelNew> futureModelNew;
+  final db = Localstore.instance;
 
   @override
   void initState() {
@@ -25,6 +25,11 @@ class _NewsPageState extends State<NewsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // gets new id
+    final id = db.collection('todos').doc().id;
+
+// save the item
+    db.collection('todos').doc(id).set({'title': 'Todo title', 'done': false});
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
@@ -189,11 +194,21 @@ class _NewsPageState extends State<NewsPage> {
                     final jsonContent = snapshot.data;
                     List<ModelNew> list =
                         jsonContent!.map((e) => ModelNew.fromJson(e)).toList();
+
                     return SizedBox(
                         height: MediaQuery.of(context).size.height - 250,
                         child: ListView.builder(
                           itemCount: list.length,
                           itemBuilder: (context, index) {
+                            final id = db.collection('news').doc().id;
+                            // db.collection('news').doc(id).set({
+                            //   'title': list[index].title,
+                            //   'description': list[index].description,
+                            //   'content': list[index].content,
+                            //   'author': list[index].author,
+                            //   'urlToImage': list[index].urlToImage,
+                            //   'publishedAt': list[index].publishedAt,
+                            // });
                             return News(news: list[index]);
                           },
                         ));
@@ -219,6 +234,8 @@ class News extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final db = Localstore.instance;
+
     if (news.author == '' ||
         news.description == '' ||
         news.publishedAt == '' ||
@@ -227,7 +244,9 @@ class News extends StatelessWidget {
       return const SizedBox();
     } else {
       return GestureDetector(
-        onTap: () {
+        onTap: () async {
+          // final data = await db.collection('todos').get();
+          // print(data);
           Navigator.push(context,
               MaterialPageRoute(builder: (_) => DetailNews(news: news)));
         },
@@ -240,7 +259,7 @@ class News extends StatelessWidget {
                 child: Image.network(
                   news.urlToImage,
                   width: 90,
-                  height: 90,
+                  height: 100,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -262,13 +281,19 @@ class News extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text(
-                    news.author,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black54,
+                  SizedBox(
+                    width: 230,
+                    child: Text(
+                      news.author,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black54,
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 10),
                   const SizedBox(
                     width: 230,
                     child: Row(

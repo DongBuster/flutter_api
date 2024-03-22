@@ -25,7 +25,7 @@ class DetailNews extends StatelessWidget {
               child: Image.network(
                 news.urlToImage,
                 width: MediaQuery.of(context).size.width - 24,
-                height: 120,
+                height: 150,
                 fit: BoxFit.fill,
               ),
             ),

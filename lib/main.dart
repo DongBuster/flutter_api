@@ -6,6 +6,7 @@ import 'news_page.dart';
 import 'profile_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
